@@ -1,0 +1,38 @@
+{
+    "name": "rate-limiter",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist/*"
+    ],
+    "exports":{
+        ".":{
+            "types":"./dist/index.d.ts",
+            "require":"./dist/index.cjs",
+            "import":"./dist//index.mjs",
+            "default":"./dist/index.mjs"
+        }
+    },
+    "scripts": {
+        "cleanup": "rm -rf dist",
+        "build:esm": "esbuild --platform=node --bundle --minify --target=es2022 --format=esm --outfile=dist/index.mjs src/index.ts --packages=external",
+        "build:cjs": "esbuild --platform=node --bundle --minify --target=es2022 --format=cjs --outfile=dist/index.cjs src/index.ts --packages=external",
+        "build:types": "dts-bundle-generator -o=dist/index.d.ts src/index.ts",
+        "build": "npm run cleanup && npm run build:esm && npm run build:cjs && npm run build:types",
+        "test": "tsc -p . && node --test ./dist/tests",
+        "test:watch": "tsc-watch --onSuccess \"node --test ./dist/tests\"",
+        "prepare": "npm run test && npx prettier . --write && npm run build"
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^20.11.28",
+        "dts-bundle-generator": "^9.3.1",
+        "esbuild": "0.20.2",
+        "prettier": "3.2.5",
+        "tsc-watch": "^6.0.4",
+        "typescript": "^5.4.2"
+    }
+}

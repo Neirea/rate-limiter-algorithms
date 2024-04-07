@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": ["ES2022"],
+        "module": "NodeNext",
+        "outDir": "./dist",
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "moduleDetection": "force",
+        "isolatedModules": true
+    }
+}
