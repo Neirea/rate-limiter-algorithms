@@ -14,7 +14,7 @@ export default class RateLimiter implements RateLimitAlgorithm {
     limit: number;
     windowMs: number;
     store: ToStore<AlgorithmValues>;
-    consume: (clientId: string, cost?: number) => Promise<boolean>;
+    consume: (clientId: string, weight?: number) => Promise<boolean>;
     getRemainingPoints: (clientId: string) => Promise<number>;
     getResetTime: (clientId: string) => Promise<number>;
 

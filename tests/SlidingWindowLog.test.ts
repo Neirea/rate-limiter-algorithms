@@ -49,7 +49,7 @@ describe("Sliding Window Log algorithm", () => {
         }
     });
 
-    test("should account for request cost", async (t) => {
+    test("should account for request weight", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),

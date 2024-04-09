@@ -15,10 +15,10 @@ export interface RateLimitAlgorithm {
      * Consume points from a client's bucket.
      * @async
      * @param {string} clientId - The identifier for a client
-     * @param {number} [cost=1] - Amount of points to consume per request.  Defaults to 1
+     * @param {number} [weight=1] - Amount of points to consume per request.  Defaults to 1
      * @returns {Promise<boolean>} - Whether the client is allowed to proceed with the request.
      */
-    consume: (clientId: string, cost?: number) => Promise<boolean>;
+    consume: (clientId: string, weight?: number) => Promise<boolean>;
     /**
      * Get the number of requests remaining in the current rate limit window for a client.
      * @async

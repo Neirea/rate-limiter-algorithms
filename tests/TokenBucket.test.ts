@@ -33,7 +33,7 @@ describe("Token bucket algorithm", () => {
         assert.strictEqual(await tokenBucket.consume(clientId), true);
     });
 
-    test("should account for cost", async (t) => {
+    test("should account for weight", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),
