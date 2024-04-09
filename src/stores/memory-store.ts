@@ -10,38 +10,34 @@ export default class MemoryStore<T extends AlgorithmValues>
     private oldClients: Map<string, T>;
     /**
      * Map of currently active clients.
-     * Clients are moved from 'oldClients' to 'activeClients' when they are refreshed or updated.
+     * Clients are moved from 'oldClients' to 'activeClients' when they are doing a request
      */
     private activeClients: Map<string, T>;
     /**
-     * A reference to the active timer.
-     */
-    private interval: NodeJS.Timeout;
-    /**
      * Time period when expired clients will be removed in milliseconds
      */
-    private TTL: number;
+    private TTL?: number;
     /**
-     * @constructor
-     * @param {number} [TTL=300_000] - Time period when expired clients will be removed in milliseconds. Defaults to 5 min
+     * A reference to the active timer.
      */
-    constructor(TTL: number = 300_000) {
+    private interval?: NodeJS.Timeout;
+
+    constructor() {
         this.oldClients = new Map();
         this.activeClients = new Map();
-        this.TTL = TTL;
-        this.interval = setInterval(() => {
-            this.clearExpired();
-        }, this.TTL);
     }
 
     public async get(clientId: string): Promise<T | undefined> {
-        return (
-            this.activeClients.get(clientId) ?? this.oldClients.get(clientId)
-        );
+        const oldClient = this.oldClients.get(clientId);
+        if (oldClient) {
+            this.oldClients.delete(clientId);
+            this.activeClients.set(clientId, oldClient);
+            return oldClient;
+        }
+        return this.activeClients.get(clientId);
     }
 
     public async set(clientId: string, value: T): Promise<void> {
-        this.oldClients.delete(clientId);
         this.activeClients.set(clientId, value);
     }
 
@@ -52,11 +48,23 @@ export default class MemoryStore<T extends AlgorithmValues>
     public async reset(): Promise<void> {
         this.oldClients.clear();
         this.activeClients.clear();
-        clearInterval(this.interval);
+    }
 
+    public setTTL(TTL: number): void {
+        this.TTL = TTL;
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
         this.interval = setInterval(() => {
             this.clearExpired();
         }, this.TTL);
+    }
+
+    public shutdown(): void {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        this.reset();
     }
 
     private clearExpired(): void {

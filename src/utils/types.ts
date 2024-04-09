@@ -60,6 +60,14 @@ export interface Store<T extends AlgorithmValues> {
      * @async
      */
     reset: () => Promise<void>;
+    /**
+     * Sets TTL - time period when expired clients will be removed in milliseconds
+     */
+    setTTL: (TTL: number) => void;
+    /**
+     * Clean shutdown for the store
+     */
+    shutdown: () => void;
 }
 
 export type ToStore<T> = T extends AlgorithmValues ? Store<T> : never;

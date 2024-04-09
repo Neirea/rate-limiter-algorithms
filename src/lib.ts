@@ -11,12 +11,12 @@ import {
 } from "./utils/types.js";
 
 export default class RateLimiter implements RateLimitAlgorithm {
-    limit: number;
-    windowMs: number;
-    store: ToStore<AlgorithmValues>;
-    consume: (clientId: string, weight?: number) => Promise<boolean>;
-    getRemainingPoints: (clientId: string) => Promise<number>;
-    getResetTime: (clientId: string) => Promise<number>;
+    public limit: number;
+    public windowMs: number;
+    public store: ToStore<AlgorithmValues>;
+    public consume: (clientId: string, weight?: number) => Promise<boolean>;
+    public getRemainingPoints: (clientId: string) => Promise<number>;
+    public getResetTime: (clientId: string) => Promise<number>;
 
     /**
      * @constructor
@@ -57,13 +57,12 @@ export default class RateLimiter implements RateLimitAlgorithm {
     private populateDefaults(config: ConfigOptions): Required<ConfigOptions> {
         const newConfig = Object.assign({} as Required<ConfigOptions>, config);
 
-        let TTL = 0;
+        let TTL = 3 * newConfig.windowMs;
         if (newConfig.algorithm === "token-bucket") {
-            TTL = Math.floor(3 * newConfig.limit * newConfig.windowMs);
-        } else {
-            TTL = 3 * newConfig.windowMs;
+            TTL *= newConfig.limit;
         }
-        newConfig.store = newConfig.store || new MemoryStore(TTL);
+        newConfig.store = newConfig.store || new MemoryStore();
+        newConfig.store.setTTL(TTL);
         return newConfig;
     }
 
