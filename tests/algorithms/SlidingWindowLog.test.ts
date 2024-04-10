@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { describe, test } from "node:test";
-import RateLimiter from "../src/lib.js";
+import RateLimiter from "../../src/lib.js";
 
 describe("Sliding Window Log algorithm", () => {
     test("should allow 3 requests per any 5000ms window", async (t) => {

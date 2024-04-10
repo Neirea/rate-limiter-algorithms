@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { describe, test } from "node:test";
-import RateLimiter from "../src/lib.js";
+import RateLimiter from "../../src/lib.js";
 
 describe("Token bucket algorithm", () => {
     test("with burst of traffic and 2 tokens after refill", async (t) => {
