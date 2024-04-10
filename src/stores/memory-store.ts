@@ -5,7 +5,7 @@ export default class MemoryStore<T extends AlgorithmValues>
 {
     /**
      * Map of clients that have been removed from the active list.
-     * These clients are retained temporarily before being removed completely.
+     * These clients are retained temporarily before being removed completely based on a timer
      */
     private oldClients: Map<string, T>;
     /**
@@ -18,7 +18,7 @@ export default class MemoryStore<T extends AlgorithmValues>
      */
     private TTL?: number;
     /**
-     * A reference to the active timer.
+     * A reference to the active timer
      */
     private interval?: NodeJS.Timeout;
 
@@ -42,6 +42,7 @@ export default class MemoryStore<T extends AlgorithmValues>
     }
 
     public async remove(clientId: string): Promise<void> {
+        this.oldClients.delete(clientId);
         this.activeClients.delete(clientId);
     }
 
@@ -60,11 +61,11 @@ export default class MemoryStore<T extends AlgorithmValues>
         }, this.TTL);
     }
 
-    public shutdown(): void {
+    public async shutdown(): Promise<void> {
         if (this.interval) {
             clearInterval(this.interval);
         }
-        this.reset();
+        await this.reset();
     }
 
     private clearExpired(): void {

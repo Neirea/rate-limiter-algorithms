@@ -23,7 +23,7 @@ export default class RateLimiter implements RateLimitAlgorithm {
      * @param {ConfigOptions} config - Rate limiter config options
      */
     constructor(config: ConfigOptions) {
-        const populatedConfig = this.populateDefaults(config);
+        const populatedConfig = this.setDefaults(config);
         this.validateConfig(populatedConfig);
 
         const algorithm = this.getAlgorithm(populatedConfig);
@@ -54,10 +54,10 @@ export default class RateLimiter implements RateLimitAlgorithm {
         return [limit, remaining, reset];
     }
 
-    private populateDefaults(config: ConfigOptions): Required<ConfigOptions> {
+    private setDefaults(config: ConfigOptions): Required<ConfigOptions> {
         const newConfig = Object.assign({} as Required<ConfigOptions>, config);
 
-        let TTL = 3 * newConfig.windowMs;
+        let TTL = 2 * newConfig.windowMs;
         if (newConfig.algorithm === "token-bucket") {
             TTL *= newConfig.limit;
         }
