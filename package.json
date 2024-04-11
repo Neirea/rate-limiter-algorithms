@@ -1,5 +1,25 @@
 {
-    "name": "rate-limiter",
+    "name": "rate-limiter-algorithms",
+    "description": "Library that provides different algorithms to perform rate limiting",
+    "author": {
+        "name": "Eugene Shumilin",
+        "email": "neirea@ukr.net",
+        "url": "https://neirea.com"
+    },
+    "homepage": "https://github.com/Neirea/rate-limiter-algorithms",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Neirea/rate-limiter-algorithms.git"
+    },
+    "keywords": [
+        "rate-limiter",
+        "rate-limit",
+        "ratelimit",
+        "limit",
+        "security",
+        "brute-force",
+        "bruteforce"
+    ],
     "version": "1.0.0",
     "type": "module",
     "main": "./dist/index.cjs",
