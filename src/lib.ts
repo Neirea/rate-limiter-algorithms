@@ -39,15 +39,18 @@ export default class RateLimiter implements RateLimitAlgorithm {
      * Get rate limit headers for a client.
      * @async
      * @param {string} clientId - The identifier for a client
-     * @returns {Promise<string[][]>} - An array of rate limit headers in pairs of [name,value]
+     * @returns {Promise<[string,string][]>} - An array of rate limit headers in pairs of [name,value]
      */
-    public async getHeaders(clientId: string): Promise<string[][]> {
-        const limit = ["X-RateLimit-Limit", this.limit.toString()];
-        const remaining = [
+    public async getHeaders(clientId: string): Promise<[string, string][]> {
+        const limit: [string, string] = [
+            "X-RateLimit-Limit",
+            this.limit.toString(),
+        ];
+        const remaining: [string, string] = [
             "X-RateLimit-Remaining",
             (await this.getRemainingPoints(clientId)).toString(),
         ];
-        const reset = [
+        const reset: [string, string] = [
             "X-RateLimit-Reset",
             (await this.getResetTime(clientId)).toString(),
         ];
