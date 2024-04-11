@@ -30,7 +30,10 @@ export default class RateLimiter implements RateLimitAlgorithm {
         this.limit = algorithm.limit;
         this.windowMs = algorithm.windowMs;
         this.store = algorithm.store;
-        this.consume = algorithm.consume.bind(algorithm);
+        this.consume = (clientId: string, weight?: number) => {
+            this.checkForInvalidClientId(clientId);
+            return algorithm.consume(clientId, weight);
+        };
         this.getRemainingPoints = algorithm.getRemainingPoints.bind(algorithm);
         this.getResetTime = algorithm.getResetTime.bind(algorithm);
     }
@@ -88,6 +91,14 @@ export default class RateLimiter implements RateLimitAlgorithm {
         }
         if (config.windowMs < 1 || !Number.isInteger(config.windowMs)) {
             throw new Error("Window time must be a positive integer");
+        }
+    }
+
+    private checkForInvalidClientId(clientId: string) {
+        if (clientId === undefined) {
+            throw new Error(
+                "An undefined 'clientId' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely.",
+            );
         }
     }
 }
