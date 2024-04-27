@@ -1,4 +1,4 @@
-export interface RateLimitAlgorithm {
+export interface RateLimitAlgorithm<T extends AlgorithmValues> {
     /**
      * Maximum amount of points that client can consume
      */
@@ -10,7 +10,7 @@ export interface RateLimitAlgorithm {
     /**
      * Store which contains clients data based on chosen algorithm
      */
-    store: ToStore<AlgorithmValues>;
+    store: ToStore<T>;
     /**
      * Consume points from a client's bucket.
      * @async
@@ -18,22 +18,19 @@ export interface RateLimitAlgorithm {
      * @param {number} [weight=1] - Amount of points to consume per request.  Defaults to 1
      * @returns {Promise<boolean>} - Whether the client is allowed to proceed with the request.
      */
-    consume: (clientId: string, weight?: number) => Promise<boolean>;
-    /**
-     * Get the number of requests remaining in the current rate limit window for a client.
-     * @async
-     * @param {string} clientId - The identifier for a client
-     * @returns {Promise<number>} - The number of requests remaining in the current rate limit window.
-     */
-    getRemainingPoints: (clientId: string) => Promise<number>;
-    /**
-     * Get the time at which the current rate limit window resets in UTC epoch seconds for a client.
-     * @async
-     * @param {string} clientId - The identifier for a client
-     * @returns {Promise<number>} - The time at which the current rate limit window resets in UTC epoch seconds
-     */
-    getResetTime: (clientId: string) => Promise<number>;
+    consume: (clientId: string, weight?: number) => Promise<ConsumeResult<T>>;
 }
+
+export type ConsumeResult<T extends AlgorithmValues> = {
+    /**
+     * Is client allowed to proceed with request
+     */
+    isAllowed: boolean;
+    /**
+     * An array of rate limit headers in pairs of [name,value]
+     */
+    clientData: T;
+};
 
 export interface Store<T extends AlgorithmValues> {
     /**
@@ -47,8 +44,9 @@ export interface Store<T extends AlgorithmValues> {
      * Saves client data in a store
      * @async
      * @param {string} clientId - The identifier for a client
+     * @returns {Promise<T>} - Current client data
      */
-    set: (clientId: string, value: T) => Promise<void>;
+    set: (clientId: string, value: T) => Promise<T>;
     /**
      * Deletes client data from a store
      * @async

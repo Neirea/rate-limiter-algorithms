@@ -37,8 +37,9 @@ export default class MemoryStore<T extends AlgorithmValues>
         return this.activeClients.get(clientId);
     }
 
-    public async set(clientId: string, value: T): Promise<void> {
+    public async set(clientId: string, value: T): Promise<T> {
         this.activeClients.set(clientId, value);
+        return value;
     }
 
     public async remove(clientId: string): Promise<void> {

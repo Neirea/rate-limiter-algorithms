@@ -1,11 +1,14 @@
 import {
+    ConsumeResult,
     RateLimitAlgorithm,
     SlidingWindowLogConfig,
     SlidingWindowLogValues,
     Store,
 } from "../utils/types.js";
 
-export default class SlidingWindowLog implements RateLimitAlgorithm {
+export default class SlidingWindowLog
+    implements RateLimitAlgorithm<SlidingWindowLogValues>
+{
     public readonly limit: number;
     public readonly windowMs: number;
     public readonly store: Store<SlidingWindowLogValues>;
@@ -16,31 +19,32 @@ export default class SlidingWindowLog implements RateLimitAlgorithm {
         this.store = config.store;
     }
 
-    public async consume(clientId: string, weight = 1): Promise<boolean> {
+    public async consume(
+        clientId: string,
+        weight = 1,
+    ): Promise<ConsumeResult<SlidingWindowLogValues>> {
         const now = Date.now();
-        const requests = await this.getUpdatedValues(clientId, now);
+        const clientData = await this.getUpdatedValues(clientId, now);
 
-        if (requests.length + weight > this.limit) {
-            return false;
+        if (clientData.length + weight > this.limit) {
+            return { isAllowed: false, clientData };
         }
         for (let i = 0; i < weight; i++) {
-            requests.push(now);
+            clientData.push(now);
         }
-        this.store.set(clientId, requests);
-        return true;
+        const newClientData = await this.store.set(clientId, clientData);
+        return { isAllowed: true, clientData: newClientData };
     }
 
-    public async getRemainingPoints(clientId: string): Promise<number> {
-        const requests = await this.store.get(clientId);
-        return requests ? this.limit - requests.length : this.limit;
+    public getRemainingPoints(clientData: SlidingWindowLogValues): number {
+        return clientData ? this.limit - clientData.length : this.limit;
     }
 
-    public async getResetTime(clientId: string): Promise<number> {
-        const currentValues = await this.store.get(clientId);
-        if (!currentValues) {
+    public getResetTime(clientData: SlidingWindowLogValues): number {
+        if (!clientData || !clientData.length) {
             return Math.floor(Date.now() / 1000);
         }
-        return Math.floor((currentValues.at(-1)! - this.windowMs) / 1000);
+        return Math.floor((clientData.at(-1)! - this.windowMs) / 1000);
     }
 
     private async getUpdatedValues(

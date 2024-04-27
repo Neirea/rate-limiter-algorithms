@@ -1,12 +1,14 @@
-import MemoryStore from "../stores/memory-store.js";
 import {
+    ConsumeResult,
     RateLimitAlgorithm,
     SlidingWindowCounterConfig,
     SlidingWindowCounterValues,
     Store,
 } from "../utils/types.js";
 
-export default class SlidingWindowCounter implements RateLimitAlgorithm {
+export default class SlidingWindowCounter
+    implements RateLimitAlgorithm<SlidingWindowCounterValues>
+{
     public readonly limit: number;
     public readonly windowMs: number;
     public readonly store: Store<SlidingWindowCounterValues>;
@@ -17,52 +19,49 @@ export default class SlidingWindowCounter implements RateLimitAlgorithm {
         this.store = config.store;
     }
 
-    public async consume(clientId: string, weight = 1): Promise<boolean> {
+    public async consume(
+        clientId: string,
+        weight = 1,
+    ): Promise<ConsumeResult<SlidingWindowCounterValues>> {
         const now = Date.now();
-        const values = await this.getUpdatedValues(clientId, now);
-        const estimatedPoints = this.calculateEstimatedPoints(values, now);
+        const clientData = await this.getUpdatedValues(clientId, now);
+        const estimatedPoints = this.getEstimatedPoints(clientData, now);
 
         if (estimatedPoints + weight > this.limit) {
-            return false;
+            return { isAllowed: false, clientData };
         }
-        this.store.set(clientId, {
-            ...values,
-            currPoints: values.currPoints + weight,
+        const newClientData = await this.store.set(clientId, {
+            ...clientData,
+            currPoints: clientData.currPoints + weight,
         });
-        return true;
+        return { isAllowed: true, clientData: newClientData };
     }
 
-    public async getRemainingPoints(clientId: string): Promise<number> {
+    public getRemainingPoints(clientData: SlidingWindowCounterValues): number {
         const now = Date.now();
-        const currentValues = await this.store.get(clientId);
-        if (
-            !currentValues ||
-            now - currentValues.edgeTimeMs > 2 * this.windowMs
-        ) {
+        if (!clientData || now - clientData.edgeTimeMs > 2 * this.windowMs) {
             return this.limit;
         }
-        if (now - currentValues.edgeTimeMs > this.windowMs) {
+        if (now - clientData.edgeTimeMs > this.windowMs) {
             return (
                 this.limit -
                 Math.floor(
-                    currentValues.currPoints *
-                        ((this.windowMs - (now - currentValues.edgeTimeMs)) /
+                    clientData.currPoints *
+                        ((this.windowMs - (now - clientData.edgeTimeMs)) /
                             this.windowMs),
                 )
             );
         }
         return (
-            this.limit -
-            Math.floor(this.calculateEstimatedPoints(currentValues, now))
+            this.limit - Math.floor(this.getEstimatedPoints(clientData, now))
         );
     }
 
-    public async getResetTime(clientId: string): Promise<number> {
-        const currentValues = await this.store.get(clientId);
-        if (!currentValues) {
+    public getResetTime(clientData: SlidingWindowCounterValues): number {
+        if (!clientData) {
             return Math.floor(Date.now() / 1000);
         }
-        return Math.floor((currentValues.edgeTimeMs + this.windowMs) / 1000);
+        return Math.floor((clientData.edgeTimeMs + this.windowMs) / 1000);
     }
 
     private async getUpdatedValues(
@@ -87,7 +86,7 @@ export default class SlidingWindowCounter implements RateLimitAlgorithm {
         return currentValues;
     }
 
-    private calculateEstimatedPoints(
+    private getEstimatedPoints(
         values: SlidingWindowCounterValues,
         now: number,
     ): number {

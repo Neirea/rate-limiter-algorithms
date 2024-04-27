@@ -1,6 +1,8 @@
 import assert from "node:assert";
 import { describe, test } from "node:test";
 import RateLimiter from "../../src/lib.js";
+import SlidingWindowCounter from "../../src/algorithms/SlidingWindowCounter.js";
+import { MemoryStore } from "../../src/index.js";
 
 describe("Sliding Window Counter algorithm", () => {
     test("should handle 15 requests on overlapping window", async (t) => {
@@ -8,8 +10,8 @@ describe("Sliding Window Counter algorithm", () => {
             apis: ["Date", "setInterval"],
             now: Date.now(),
         });
-        const slidingWindowCounter = new RateLimiter({
-            algorithm: "sliding-window-counter",
+        const slidingWindowCounter = new SlidingWindowCounter({
+            store: new MemoryStore(),
             limit: 5,
             windowMs: 10_000,
         });
@@ -20,10 +22,9 @@ describe("Sliding Window Counter algorithm", () => {
         t.mock.timers.tick(5_000);
 
         for (let i = 0; i < 14; i++) {
-            const isRequestPassing =
-                await slidingWindowCounter.consume(clientId);
+            const { isAllowed } = await slidingWindowCounter.consume(clientId);
             const shouldPass = i < 4 || (i > 5 && i % 2 === 1);
-            assert.strictEqual(isRequestPassing, shouldPass);
+            assert.strictEqual(isAllowed, shouldPass);
             t.mock.timers.tick(1000);
         }
     });
@@ -33,8 +34,8 @@ describe("Sliding Window Counter algorithm", () => {
             apis: ["Date", "setInterval"],
             now: Date.now(),
         });
-        const slidingWindowCounter = new RateLimiter({
-            algorithm: "sliding-window-counter",
+        const slidingWindowCounter = new SlidingWindowCounter({
+            store: new MemoryStore(),
             limit: 5,
             windowMs: 10_000,
         });
@@ -48,8 +49,10 @@ describe("Sliding Window Counter algorithm", () => {
 
         t.mock.timers.tick(20_000);
 
+        // empty request to get current clientData
+        const { clientData } = await slidingWindowCounter.consume(clientId, 0);
         assert.strictEqual(
-            await slidingWindowCounter.getRemainingPoints(clientId),
+            slidingWindowCounter.getRemainingPoints(clientData),
             slidingWindowCounter.limit,
         );
     });

@@ -1,11 +1,14 @@
 import {
+    ConsumeResult,
     FixedWindowCounterConfig,
     FixedWindowCounterValues,
     RateLimitAlgorithm,
     Store,
 } from "../utils/types.js";
 
-export default class FixedWindowCounter implements RateLimitAlgorithm {
+export default class FixedWindowCounter
+    implements RateLimitAlgorithm<FixedWindowCounterValues>
+{
     public readonly limit: number;
     public readonly windowMs: number;
     public readonly store: Store<FixedWindowCounterValues>;
@@ -16,34 +19,34 @@ export default class FixedWindowCounter implements RateLimitAlgorithm {
         this.store = config.store;
     }
 
-    public async consume(clientId: string, weight = 1): Promise<boolean> {
-        const { points, lastWindowResetTimeMs } =
-            await this.getUpdatedValues(clientId);
-        if (points + weight > this.limit) {
-            return false;
+    public async consume(
+        clientId: string,
+        weight = 1,
+    ): Promise<ConsumeResult<FixedWindowCounterValues>> {
+        const clientData = await this.getUpdatedValues(clientId);
+        if (clientData.points + weight > this.limit) {
+            return { isAllowed: false, clientData };
         }
-        this.store.set(clientId, {
-            points: points + weight,
-            lastWindowResetTimeMs,
+        const newClientData = await this.store.set(clientId, {
+            points: clientData.points + weight,
+            lastWindowResetTimeMs: clientData.lastWindowResetTimeMs,
         });
-        return true;
+        return { isAllowed: true, clientData: newClientData };
     }
 
-    public async getRemainingPoints(clientId: string): Promise<number> {
-        const currentValues = await this.store.get(clientId);
-        if (!currentValues) {
+    public getRemainingPoints(clientData: FixedWindowCounterValues): number {
+        if (!clientData) {
             return 0;
         }
-        return this.limit - currentValues.points;
+        return this.limit - clientData.points;
     }
 
-    public async getResetTime(clientId: string): Promise<number> {
-        const currentValues = await this.store.get(clientId);
-        if (!currentValues) {
+    public getResetTime(clientData: FixedWindowCounterValues): number {
+        if (!clientData) {
             return Math.floor(Date.now() / 1000);
         }
         return Math.floor(
-            (currentValues.lastWindowResetTimeMs + this.windowMs) / 1000,
+            (clientData.lastWindowResetTimeMs + this.windowMs) / 1000,
         );
     }
 

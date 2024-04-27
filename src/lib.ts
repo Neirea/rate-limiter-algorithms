@@ -6,17 +6,24 @@ import MemoryStore from "./stores/memory-store.js";
 import {
     AlgorithmValues,
     ConfigOptions,
+    ConsumeResult,
     RateLimitAlgorithm,
     ToStore,
 } from "./utils/types.js";
 
-export default class RateLimiter implements RateLimitAlgorithm {
-    public limit: number;
-    public windowMs: number;
-    public store: ToStore<AlgorithmValues>;
-    public consume: (clientId: string, weight?: number) => Promise<boolean>;
-    public getRemainingPoints: (clientId: string) => Promise<number>;
-    public getResetTime: (clientId: string) => Promise<number>;
+export default class RateLimiter
+    implements RateLimitAlgorithm<AlgorithmValues>
+{
+    public readonly limit: number;
+    public readonly windowMs: number;
+    public readonly store: ToStore<AlgorithmValues>;
+    public consume: (
+        clientId: string,
+        weight?: number,
+    ) => Promise<ConsumeResult<AlgorithmValues>>;
+
+    private getRemainingPoints: (clientData: AlgorithmValues) => number;
+    private getResetTime: (clientData: AlgorithmValues) => number;
 
     /**
      * @constructor
@@ -30,32 +37,37 @@ export default class RateLimiter implements RateLimitAlgorithm {
         this.limit = algorithm.limit;
         this.windowMs = algorithm.windowMs;
         this.store = algorithm.store;
-        this.consume = (clientId: string, weight?: number) => {
+        this.consume = (clientId: string, weight = 1) => {
             this.checkForInvalidClientId(clientId);
             return algorithm.consume(clientId, weight);
         };
-        this.getRemainingPoints = algorithm.getRemainingPoints.bind(algorithm);
-        this.getResetTime = algorithm.getResetTime.bind(algorithm);
-    }
 
+        type HeadersDataFunction = (clientData: AlgorithmValues) => number;
+
+        this.getRemainingPoints = (
+            algorithm.getRemainingPoints as HeadersDataFunction
+        ).bind(algorithm);
+        this.getResetTime = (
+            algorithm.getResetTime as HeadersDataFunction
+        ).bind(algorithm);
+    }
     /**
      * Get rate limit headers for a client.
-     * @async
-     * @param {string} clientId - The identifier for a client
-     * @returns {Promise<[string,string][]>} - An array of rate limit headers in pairs of [name,value]
+     * @param {AlgorithmValues} clientData - Retrieved data for a client
+     * @returns {[string,string][]} - An array of rate limit headers in pairs of [name,value]
      */
-    public async getHeaders(clientId: string): Promise<[string, string][]> {
+    public getHeaders(clientData: AlgorithmValues): [string, string][] {
         const limit: [string, string] = [
             "X-RateLimit-Limit",
             this.limit.toString(),
         ];
         const remaining: [string, string] = [
             "X-RateLimit-Remaining",
-            (await this.getRemainingPoints(clientId)).toString(),
+            this.getRemainingPoints(clientData).toString(),
         ];
         const reset: [string, string] = [
             "X-RateLimit-Reset",
-            (await this.getResetTime(clientId)).toString(),
+            this.getResetTime(clientData).toString(),
         ];
         return [limit, remaining, reset];
     }

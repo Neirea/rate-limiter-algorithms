@@ -1,11 +1,14 @@
 import {
+    ConsumeResult,
     RateLimitAlgorithm,
     Store,
     TokenBucketConfig,
     TokenBucketValues,
 } from "../utils/types.js";
 
-export default class TokenBucket implements RateLimitAlgorithm {
+export default class TokenBucket
+    implements RateLimitAlgorithm<TokenBucketValues>
+{
     public readonly limit: number;
     public readonly windowMs: number;
     public readonly store: Store<TokenBucketValues>;
@@ -16,39 +19,37 @@ export default class TokenBucket implements RateLimitAlgorithm {
         this.windowMs = config.windowMs;
     }
 
-    public async consume(clientId: string, weight = 1): Promise<boolean> {
-        const { points, lastRefillTimeMs } =
-            await this.getUpdatedValues(clientId);
-        if (points - weight < 0) {
-            return false;
+    public async consume(
+        clientId: string,
+        weight = 1,
+    ): Promise<ConsumeResult<TokenBucketValues>> {
+        const clientData = await this.getUpdatedValues(clientId);
+        if (clientData.points - weight < 0) {
+            return { isAllowed: false, clientData };
         }
-        this.store.set(clientId, {
-            points: points - weight,
-            lastRefillTimeMs,
+        const newClientData = await this.store.set(clientId, {
+            points: clientData.points - weight,
+            lastRefillTimeMs: clientData.lastRefillTimeMs,
         });
-        return true;
+        return { isAllowed: true, clientData: newClientData };
     }
 
-    public async getRemainingPoints(clientId: string): Promise<number> {
-        const currentValues = await this.store.get(clientId);
-        if (!currentValues) {
+    public getRemainingPoints(clientData: TokenBucketValues): number {
+        if (!clientData) {
             return this.limit;
         }
         const pointsToAdd = Math.floor(
-            (Date.now() - currentValues.lastRefillTimeMs) / this.windowMs,
+            (Date.now() - clientData.lastRefillTimeMs) / this.windowMs,
         );
 
-        return Math.min(currentValues.points + pointsToAdd, this.limit);
+        return Math.min(clientData.points + pointsToAdd, this.limit);
     }
 
-    public async getResetTime(clientId: string): Promise<number> {
-        const currentValues = await this.store.get(clientId);
-        if (!currentValues) {
+    public getResetTime(clientData: TokenBucketValues): number {
+        if (!clientData) {
             return Math.floor(Date.now() / 1000);
         }
-        return Math.floor(
-            (currentValues.lastRefillTimeMs + this.windowMs) / 1000,
-        );
+        return Math.floor((clientData.lastRefillTimeMs + this.windowMs) / 1000);
     }
 
     private async getUpdatedValues(

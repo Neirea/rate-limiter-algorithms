@@ -1,6 +1,8 @@
 import assert from "node:assert";
 import { describe, test } from "node:test";
 import RateLimiter from "../../src/lib.js";
+import SlidingWindowLog from "../../src/algorithms/SlidingWindowLog.js";
+import { MemoryStore } from "../../src/index.js";
 
 describe("Sliding Window Log algorithm", () => {
     test("should allow 3 requests per any 5000ms window", async (t) => {
@@ -8,8 +10,8 @@ describe("Sliding Window Log algorithm", () => {
             apis: ["Date", "setInterval"],
             now: Date.now(),
         });
-        const slidingWindowLog = new RateLimiter({
-            algorithm: "sliding-window-logs",
+        const slidingWindowLog = new SlidingWindowLog({
+            store: new MemoryStore(),
             limit: 3,
             windowMs: 5000,
         });
@@ -17,9 +19,9 @@ describe("Sliding Window Log algorithm", () => {
         const clientId = "unique_id";
 
         for (let i = 0; i < 10; i++) {
-            const isRequestPassing = await slidingWindowLog.consume(clientId);
+            const { isAllowed } = await slidingWindowLog.consume(clientId);
             const shouldPass = i < 3 || (i > 4 && i < 8);
-            assert.strictEqual(isRequestPassing, shouldPass);
+            assert.strictEqual(isAllowed, shouldPass);
             t.mock.timers.tick(1000);
         }
     });
@@ -29,8 +31,8 @@ describe("Sliding Window Log algorithm", () => {
             apis: ["Date", "setInterval"],
             now: Date.now(),
         });
-        const slidingWindowLog = new RateLimiter({
-            algorithm: "sliding-window-logs",
+        const slidingWindowLog = new SlidingWindowLog({
+            store: new MemoryStore(),
             limit: 3,
             windowMs: 5000,
         });
@@ -38,13 +40,13 @@ describe("Sliding Window Log algorithm", () => {
         const clientId = "unique_id";
 
         for (let i = 0; i < 3; i++) {
-            slidingWindowLog.consume(clientId);
+            await slidingWindowLog.consume(clientId);
         }
         t.mock.timers.tick(6000);
         for (let i = 0; i < 5; i++) {
-            const isRequestPassing = await slidingWindowLog.consume(clientId);
+            const { isAllowed } = await slidingWindowLog.consume(clientId);
             const shouldPass = true;
-            assert.strictEqual(isRequestPassing, shouldPass);
+            assert.strictEqual(isAllowed, shouldPass);
             t.mock.timers.tick(2500);
         }
     });
@@ -54,8 +56,8 @@ describe("Sliding Window Log algorithm", () => {
             apis: ["Date", "setInterval"],
             now: Date.now(),
         });
-        const slidingWindowLog = new RateLimiter({
-            algorithm: "sliding-window-logs",
+        const slidingWindowLog = new SlidingWindowLog({
+            store: new MemoryStore(),
             limit: 5,
             windowMs: 5000,
         });
@@ -77,11 +79,11 @@ describe("Sliding Window Log algorithm", () => {
         const clientId = "unique_id";
 
         for (let i = 0; i < 12; i++) {
-            const isRequestPassing = await slidingWindowLog.consume(
+            const { isAllowed } = await slidingWindowLog.consume(
                 clientId,
                 1 + (i % 2),
             );
-            assert.strictEqual(isRequestPassing, shouldPass[i]);
+            assert.strictEqual(isAllowed, shouldPass[i]);
             t.mock.timers.tick(1000);
         }
     });

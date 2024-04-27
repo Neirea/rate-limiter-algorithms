@@ -23,10 +23,10 @@ const server = createServer(async (req, res) => {
     const ip = req.socket.remoteAddress || "any unique key";
 
     try {
-        const isAllowed = await limiter.consume(ip);
+        const { isAllowed, clientData } = await limiter.consume(ip);
 
         // set rate limiting headers
-        const headers = await limiter.getHeaders(ip);
+        const headers = limiter.getHeaders(clientData);
         for (const header of headers) {
             res.setHeader(header[0], header[1]);
         }
