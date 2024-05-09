@@ -14,11 +14,10 @@
     "keywords": [
         "rate-limiter",
         "rate-limit",
-        "ratelimit",
-        "limit",
-        "security",
-        "brute-force",
-        "bruteforce"
+        "token-bucket",
+        "sliding-window-counter",
+        "sliding-window-log",
+        "fixed-window-counter"
     ],
     "version": "2.0.0",
     "type": "module",
@@ -29,7 +28,7 @@
         "/dist"
     ],
     "scripts": {
-        "build": "tsup src/index.ts --format cjs,esm --dts --minify --clean",
+        "build": "tsup src/index.ts --format cjs,esm --dts --minify --clean && rm dist/index.d.cts",
         "test": "tsc -p . && node --test ./dist/tests && rm -rf dist",
         "prepublishOnly": "npm run test && npm run build"
     },
