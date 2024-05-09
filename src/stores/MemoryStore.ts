@@ -16,7 +16,7 @@ export default class MemoryStore<T extends AlgorithmValues>
     /**
      * Time period when expired clients will be removed in milliseconds
      */
-    private TTL?: number;
+    private TTL: number;
     /**
      * A reference to the active timer
      */
@@ -25,6 +25,7 @@ export default class MemoryStore<T extends AlgorithmValues>
     constructor() {
         this.oldClients = new Map();
         this.activeClients = new Map();
+        this.TTL = 300_000;
     }
 
     public async get(clientId: string): Promise<T | undefined> {

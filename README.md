@@ -11,7 +11,7 @@ Library that provides different algorithms to perform rate limiting.
 
 ```ts
 import { createServer } from "node:http";
-import RateLimiter from "rate-limiter-algorithms";
+import { RateLimiter } from "rate-limiter-algorithms";
 
 const limiter = new RateLimiter({
     algorithm: "token-bucket",

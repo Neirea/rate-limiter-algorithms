@@ -2,7 +2,7 @@ import FixedWindowCounter from "./algorithms/FixedWindowCounter.js";
 import SlidingWindowCounter from "./algorithms/SlidingWindowCounter.js";
 import SlidingWindowLog from "./algorithms/SlidingWindowLog.js";
 import TokenBucket from "./algorithms/TokenBucket.js";
-import MemoryStore from "./stores/memory-store.js";
+import MemoryStore from "./stores/MemoryStore.js";
 import {
     AlgorithmValues,
     ConfigOptions,
