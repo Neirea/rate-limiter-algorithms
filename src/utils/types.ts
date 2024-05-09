@@ -65,7 +65,7 @@ export interface Store<T extends AlgorithmValues> {
     /**
      * Clean shutdown for the store
      */
-    shutdown: () => Promise<void>;
+    shutdown?: () => Promise<void>;
 }
 
 export type ToStore<T> = T extends AlgorithmValues ? Store<T> : never;

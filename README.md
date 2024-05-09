@@ -58,7 +58,46 @@ server.listen(3000, "127.0.0.1", () => {
 
 ## Date Stores
 
-The rate limiter comes with a built-in memory store. Any store can be used that follows the same interface
+### Memory Store
+
+Default in-memory option. Example:
+
+```ts
+const limiter = new RateLimiter({
+    algorithm: "token-bucket",
+    limit: 5,
+    windowMs: 5000,
+    store: new MemoryStore(),
+});
+```
+
+### Redis Store
+
+Uses **rawCall** function to send raw commands to **Redis**. Example for [`node-redis`](https://github.com/redis/node-redis) :
+
+```ts
+import { createClient } from "redis";
+
+const client = createClient();
+client.connect();
+
+const limiter = new RateLimiter({
+    algorithm: "token-bucket",
+    limit: 5,
+    windowMs: 5000,
+    store: new RedisStore({
+        prefix: "rla:", // it's default prefix
+        rawCall: (...args: string[]) => client.sendCommand(args),
+    }),,
+});
+```
+
+Raw command list:
+
+| Library                                             | Function                                                                |
+| --------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`node-redis`](https://github.com/redis/node-redis) | `(...args: string[]) => client.sendCommand(args)`                       |
+| [`ioredis`](https://github.com/luin/ioredis)        | `(command: string, ...args: string[]) => client.call(command, ...args)` |
 
 ## License
 
