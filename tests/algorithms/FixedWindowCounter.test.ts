@@ -1,6 +1,5 @@
 import assert from "node:assert";
 import { describe, test } from "node:test";
-import RateLimiter from "../../src/lib.js";
 import FixedWindowCounter from "../../src/algorithms/FixedWindowCounter.js";
 import { MemoryStore } from "../../src/index.js";
 
