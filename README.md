@@ -76,6 +76,7 @@ const limiter = new RateLimiter({
 Uses **rawCall** function to send raw commands to **Redis**. Example for [`node-redis`](https://github.com/redis/node-redis) :
 
 ```ts
+import { RateLimiter, RedisStore } from "rate-limiter-algorithms";
 import { createClient } from "redis";
 
 const client = createClient();
