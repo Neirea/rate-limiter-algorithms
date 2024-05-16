@@ -1,4 +1,4 @@
-import { AlgorithmValues, Store } from "../utils/types.js";
+import type { AlgorithmValues, Store } from "../utils/types.js";
 
 type RedisOptions = {
     rawCall: (...args: string[]) => Promise<unknown>;

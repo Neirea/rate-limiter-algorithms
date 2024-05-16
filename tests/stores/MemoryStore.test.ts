@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { describe, test } from "node:test";
 import { MemoryStore } from "../../src/index.js";
-import { TokenBucketValues } from "../../src/utils/types.js";
+import type { TokenBucketValues } from "../../src/utils/types.js";
 
 describe("Memory Store", () => {
     test("Should remove all clients in 2 TTL time windows", async (t) => {

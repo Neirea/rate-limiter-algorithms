@@ -8,6 +8,8 @@
         "noUncheckedIndexedAccess": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "moduleDetection": "force"
+        "moduleDetection": "force",
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true
     }
 }

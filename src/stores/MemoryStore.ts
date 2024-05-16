@@ -1,25 +1,16 @@
-import { AlgorithmValues, Store } from "../utils/types.js";
+import type { AlgorithmValues, Store } from "../utils/types.js";
 
 export default class MemoryStore<T extends AlgorithmValues>
     implements Store<T>
 {
     /**
-     * Map of clients that have been removed from the active list.
-     * These clients are retained temporarily before being removed completely based on a timer
-     */
-    private oldClients: Map<string, T>;
-    /**
-     * Map of currently active clients.
+     * 'oldClients' are retained temporarily before being removed completely based on an interval timer.
+     * Clients are moved from 'activeClients' to 'oldClients' when interval timer triggers.
      * Clients are moved from 'oldClients' to 'activeClients' when they are doing a request
      */
+    private oldClients: Map<string, T>;
     private activeClients: Map<string, T>;
-    /**
-     * Time period when expired clients will be removed in milliseconds
-     */
     private TTL: number;
-    /**
-     * A reference to the active timer
-     */
     private interval?: NodeJS.Timeout;
 
     constructor() {
