@@ -19,16 +19,23 @@
         "sliding-window-log",
         "fixed-window-counter"
     ],
-    "version": "2.1.0",
+    "version": "2.1.1",
     "type": "module",
-    "main": "./dist/index.cjs",
-    "module": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    "exports":{
+        "import":{
+            "types":"./dist/index.d.ts",
+            "default":"./dist/index.js"
+        },
+        "require":{
+            "types":"./dist/index.d.cts",
+            "default":"./dist/index.cjs"
+        }
+    },
     "files": [
         "/dist"
     ],
     "scripts": {
-        "build": "tsup src/index.ts --format cjs,esm --dts --minify --clean && rm dist/index.d.cts",
+        "build": "tsup src/index.ts --format cjs,esm --dts --minify --clean",
         "test": "tsc -p . && node --test ./dist/tests && rm -rf dist",
         "prepublishOnly": "npm run test && npm run build"
     },
