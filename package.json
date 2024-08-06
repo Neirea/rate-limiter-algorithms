@@ -19,7 +19,7 @@
         "sliding-window-log",
         "fixed-window-counter"
     ],
-    "version": "2.1.1",
+    "version": "2.1.2",
     "type": "module",
     "exports":{
         "import":{
