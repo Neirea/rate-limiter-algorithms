@@ -52,6 +52,9 @@ export default class MemoryStore<T extends AlgorithmValues>
         this.interval = setInterval(() => {
             this.clearExpired();
         }, this.TTL);
+        if (this.interval.unref) {
+            this.interval.unref();
+        }
     }
 
     public async shutdown(): Promise<void> {
