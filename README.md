@@ -63,6 +63,8 @@ server.listen(3000, "127.0.0.1", () => {
 Default in-memory option. Example:
 
 ```ts
+import { RateLimiter, MemoryStore } from "rate-limiter-algorithms";
+
 const limiter = new RateLimiter({
     algorithm: "token-bucket",
     limit: 5,
