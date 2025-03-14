@@ -104,4 +104,4 @@ Raw command list:
 
 ## License
 
-All code and documentation are (c) 2024 [Eugene Shumilin](https://github.com/Neirea) and released under the [MIT License](LICENSE)
+All code and documentation are (c) 2025 [Eugene Shumilin](https://github.com/Neirea) and released under the [MIT License](LICENSE)
