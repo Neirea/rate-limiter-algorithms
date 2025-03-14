@@ -1,5 +1,6 @@
 {
     "name": "rate-limiter-algorithms",
+    "version": "2.1.7",
     "description": "Library that provides different algorithms to perform rate limiting",
     "author": {
         "name": "Eugene Shumilin",
@@ -19,7 +20,6 @@
         "sliding-window-log",
         "fixed-window-counter"
     ],
-    "version": "2.1.6",
     "type": "module",
     "exports": {
         "import": {
