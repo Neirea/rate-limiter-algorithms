@@ -35,10 +35,7 @@ export default class FixedWindowCounter
     }
 
     public getRemainingPoints(clientData: FixedWindowCounterValues): number {
-        if (!clientData) {
-            return 0;
-        }
-        return this.limit - clientData.points;
+        return clientData ? this.limit - clientData.points : this.limit;
     }
 
     public getResetTime(clientData: FixedWindowCounterValues): number {
