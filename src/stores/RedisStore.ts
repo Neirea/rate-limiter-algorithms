@@ -53,4 +53,8 @@ export default class RedisStore<T extends AlgorithmValues> implements Store<T> {
     private prefixedKey(key: string): string {
         return `${this.prefix}${key}`;
     }
+
+    public async shutdown(): Promise<void> {
+        await this.reset();
+    }
 }
