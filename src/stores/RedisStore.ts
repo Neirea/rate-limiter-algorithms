@@ -21,7 +21,8 @@ export default class RedisStore<T extends AlgorithmValues> implements Store<T> {
             "GET",
             this.prefixedKey(clientId),
         )) as string;
-        return JSON.parse(result) ?? undefined;
+        const parsedResult = JSON.parse(result) as T | null;
+        return parsedResult ?? undefined;
     }
 
     public async set(clientId: string, value: T): Promise<T> {

@@ -3,8 +3,8 @@ import { describe, test } from "node:test";
 import { MemoryStore } from "../../src/index.js";
 import type { TokenBucketValues } from "../../src/utils/types.js";
 
-describe("Memory Store", () => {
-    test("Should remove all clients in 2 TTL time windows", async (t) => {
+void describe("Memory Store", () => {
+    void test("Should remove all clients in 2 TTL time windows", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),
@@ -15,7 +15,7 @@ describe("Memory Store", () => {
         memoryStore.setTTL(fiveMinutes);
 
         for (let i = 0; i < 5; i++) {
-            memoryStore.set(i.toString(), {
+            await memoryStore.set(i.toString(), {
                 points: 1,
                 lastRefillTimeMs: Date.now(),
             });

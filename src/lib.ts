@@ -4,6 +4,7 @@ import SlidingWindowLog from "./algorithms/SlidingWindowLog.js";
 import TokenBucket from "./algorithms/TokenBucket.js";
 import MemoryStore from "./stores/MemoryStore.js";
 import type {
+    Algorithm,
     AlgorithmValues,
     ConfigOptions,
     ConsumeResult,
@@ -37,7 +38,10 @@ export default class RateLimiter
         this.limit = algorithm.limit;
         this.windowMs = algorithm.windowMs;
         this.store = algorithm.store;
-        this.consume = (clientId: string, weight = 1) => {
+        this.consume = (
+            clientId: string,
+            weight = 1,
+        ): Promise<ConsumeResult<AlgorithmValues>> => {
             this.checkForInvalidClientId(clientId);
             return algorithm.consume(clientId, weight);
         };
@@ -84,7 +88,7 @@ export default class RateLimiter
         return newConfig;
     }
 
-    private getAlgorithm(config: Required<ConfigOptions>) {
+    private getAlgorithm(config: Required<ConfigOptions>): Algorithm {
         switch (config.algorithm) {
             case "token-bucket":
                 return new TokenBucket(config);
@@ -97,7 +101,7 @@ export default class RateLimiter
         }
     }
 
-    private validateConfig(config: ConfigOptions) {
+    private validateConfig(config: ConfigOptions): void {
         if (config.limit < 1 || !Number.isInteger(config.limit)) {
             throw new Error("Limit must be a positive integer");
         }
@@ -106,7 +110,7 @@ export default class RateLimiter
         }
     }
 
-    private checkForInvalidClientId(clientId: string) {
+    private checkForInvalidClientId(clientId: string): void {
         if (clientId === undefined) {
             throw new Error(
                 "An undefined 'clientId' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely.",

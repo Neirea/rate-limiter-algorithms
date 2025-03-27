@@ -1,3 +1,8 @@
+import type FixedWindowCounter from "../algorithms/FixedWindowCounter.js";
+import type SlidingWindowCounter from "../algorithms/SlidingWindowCounter.js";
+import type SlidingWindowLog from "../algorithms/SlidingWindowLog.js";
+import type TokenBucket from "../algorithms/TokenBucket.js";
+
 export interface RateLimitAlgorithm<T extends AlgorithmValues> {
     /**
      * Maximum amount of points that client can consume
@@ -132,6 +137,12 @@ export type AlgorithmValues =
     | SlidingWindowLogValues
     | SlidingWindowCounterValues
     | FixedWindowCounterValues;
+
+export type Algorithm =
+    | TokenBucket
+    | SlidingWindowCounter
+    | SlidingWindowLog
+    | FixedWindowCounter;
 
 export type TokenBucketConfig = AlgorithmOptions<TokenBucketValues>;
 export type SlidingWindowLogConfig = AlgorithmOptions<SlidingWindowLogValues>;

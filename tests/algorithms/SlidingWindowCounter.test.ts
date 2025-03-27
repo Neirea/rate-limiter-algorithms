@@ -3,8 +3,8 @@ import { describe, test } from "node:test";
 import SlidingWindowCounter from "../../src/algorithms/SlidingWindowCounter.js";
 import { MemoryStore } from "../../src/index.js";
 
-describe("Sliding Window Counter algorithm", () => {
-    test("should handle 15 requests on overlapping window", async (t) => {
+void describe("Sliding Window Counter algorithm", () => {
+    void test("should handle 15 requests on overlapping window", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),
@@ -28,7 +28,7 @@ describe("Sliding Window Counter algorithm", () => {
         }
     });
 
-    test("should reset counters after 2 windows of time passed", async (t) => {
+    void test("should reset counters after 2 windows of time passed", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),

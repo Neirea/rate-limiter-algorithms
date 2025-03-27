@@ -3,8 +3,8 @@ import { describe, test } from "node:test";
 import SlidingWindowLog from "../../src/algorithms/SlidingWindowLog.js";
 import { MemoryStore } from "../../src/index.js";
 
-describe("Sliding Window Log algorithm", () => {
-    test("should allow 3 requests per any 5000ms window", async (t) => {
+void describe("Sliding Window Log algorithm", () => {
+    void test("should allow 3 requests per any 5000ms window", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),
@@ -25,7 +25,7 @@ describe("Sliding Window Log algorithm", () => {
         }
     });
 
-    test("should correctly delete old timestamps", async (t) => {
+    void test("should correctly delete old timestamps", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),
@@ -50,7 +50,7 @@ describe("Sliding Window Log algorithm", () => {
         }
     });
 
-    test("should account for request weight", async (t) => {
+    void test("should account for request weight", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),

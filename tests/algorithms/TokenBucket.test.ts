@@ -3,8 +3,8 @@ import { describe, test } from "node:test";
 import TokenBucket from "../../src/algorithms/TokenBucket.js";
 import { MemoryStore } from "../../src/index.js";
 
-describe("Token bucket algorithm", () => {
-    test("with burst of traffic and 2 tokens after refill", async (t) => {
+void describe("Token bucket algorithm", () => {
+    void test("with burst of traffic and 2 tokens after refill", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),
@@ -38,7 +38,7 @@ describe("Token bucket algorithm", () => {
         assert.strictEqual(lastRequest.isAllowed, true);
     });
 
-    test("should account for weight", async (t) => {
+    void test("should account for weight", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),
@@ -67,7 +67,7 @@ describe("Token bucket algorithm", () => {
         assert.strictEqual(tokenBucket.getRemainingPoints(clientData), 0);
     });
 
-    test("should reset last refill time after bucket is full again", async (t) => {
+    void test("should reset last refill time after bucket is full again", async (t) => {
         t.mock.timers.enable({
             apis: ["Date", "setInterval"],
             now: Date.now(),

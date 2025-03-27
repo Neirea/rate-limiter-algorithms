@@ -24,24 +24,26 @@ export default class MemoryStore<T extends AlgorithmValues>
         if (oldClient) {
             this.oldClients.delete(clientId);
             this.activeClients.set(clientId, oldClient);
-            return oldClient;
+            return Promise.resolve(oldClient);
         }
-        return this.activeClients.get(clientId);
+        return Promise.resolve(this.activeClients.get(clientId));
     }
 
     public async set(clientId: string, value: T): Promise<T> {
         this.activeClients.set(clientId, value);
-        return value;
+        return Promise.resolve(value);
     }
 
     public async remove(clientId: string): Promise<void> {
         this.oldClients.delete(clientId);
         this.activeClients.delete(clientId);
+        return Promise.resolve();
     }
 
     public async reset(): Promise<void> {
         this.oldClients.clear();
         this.activeClients.clear();
+        return Promise.resolve();
     }
 
     public setTTL(TTL: number): void {
