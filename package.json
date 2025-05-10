@@ -1,7 +1,7 @@
 {
     "name": "rate-limiter-algorithms",
     "version": "2.1.8",
-    "description": "Library that provides different algorithms to perform rate limiting",
+    "description": "A rate limiting library that provides various algorithms",
     "author": {
         "name": "Eugene Shumilin",
         "email": "neirea@ukr.net",

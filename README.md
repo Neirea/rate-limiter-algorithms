@@ -1,6 +1,7 @@
 # Rate Limiter Algorithms
 
-Library that provides different algorithms to perform rate limiting.
+A rate limiting library that provides various algorithms and works in any Javascript environment.\
+You can find more information about algorithms in [this article](https://medium.com/@Neirea_/rate-limiting-algorithms-d97d0a8bd99d).
 
 ![NPM Version](https://img.shields.io/npm/v/rate-limiter-algorithms)
 ![NPM Downloads](https://img.shields.io/npm/dm/rate-limiter-algorithms)
@@ -20,10 +21,10 @@ const limiter = new RateLimiter({
 });
 
 const server = createServer(async (req, res) => {
-    const ip = req.socket.remoteAddress || "any unique key";
+    const uniqueKey = req.socket.remoteAddress; // or any other unique key like userId
 
     try {
-        const { isAllowed, clientData } = await limiter.consume(ip);
+        const { isAllowed, clientData } = await limiter.consume(uniqueKey);
 
         // set rate limiting headers
         const headers = limiter.getHeaders(clientData);
@@ -69,7 +70,7 @@ const limiter = new RateLimiter({
     algorithm: "token-bucket",
     limit: 5,
     windowMs: 5000,
-    store: new MemoryStore(),
+    store: new MemoryStore(), // defaults to this value if unspecified
 });
 ```
 
@@ -89,7 +90,7 @@ const limiter = new RateLimiter({
     limit: 5,
     windowMs: 5000,
     store: new RedisStore({
-        prefix: "rla:", // it's default prefix
+        prefix: "rla:", // defaults to this value if unspecified
         rawCall: (...args: string[]) => client.sendCommand(args),
     }),,
 });
