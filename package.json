@@ -37,7 +37,7 @@
     ],
     "scripts": {
         "build": "tsup src/index.ts --format cjs,esm --dts --minify --clean",
-        "test": "tsc -p . && node --test ./dist/tests && rm -rf dist",
+        "test": "tsc -p . && node --test ./dist/tests/**/*.test.js && rm -rf dist",
         "lint": "eslint \"{src,tests}/**/*.ts\" --fix",
         "prepublishOnly": "npm run lint && npm run test && npm run build"
     },
