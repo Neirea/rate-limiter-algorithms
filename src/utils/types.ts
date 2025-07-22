@@ -32,7 +32,7 @@ export type ConsumeResult<T extends AlgorithmValues> = {
      */
     isAllowed: boolean;
     /**
-     * An array of rate limit headers in pairs of [name,value]
+     * Client requests data based on chosen algorithm
      */
     clientData: T;
 };
