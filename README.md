@@ -21,7 +21,8 @@ const limiter = new RateLimiter({
 });
 
 const server = createServer(async (req, res) => {
-    const uniqueKey = req.socket.remoteAddress; // or any other unique key like userId
+    // any unique key like ip address or user id
+    const uniqueKey = req.socket.remoteAddress;
 
     try {
         const { isAllowed, clientData } = await limiter.consume(uniqueKey);
